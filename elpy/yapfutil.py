@@ -17,9 +17,10 @@ except ImportError:  # pragma: no cover
     try:
         from packaging.version import parse as parse_version
     except ImportError:  # pragma: no cover
-        raise Fault("Neither `packaging` or `pkg_rsources` could be imported., "
-                    "please reinstall Elpy RPC virtualenv with"
-                    " `M-x elpy-rpc-reinstall-virtualenv`", code=400)
+        def parse_version(*args, **kwargs):
+            raise Fault("Neither `packaging` nor `pkg_resources` could be imported, "
+                        "please reinstall Elpy RPC virtualenv with"
+                        " `M-x elpy-rpc-reinstall-virtualenv`", code=400)
 try:
     if YAPF_NOT_SUPPORTED:
         yapf_api = None

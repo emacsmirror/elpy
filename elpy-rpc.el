@@ -385,6 +385,15 @@ binaries used to create the virtualenv."
       (kill-buffer elpy-venv-buffname-visible))
     (with-elpy-rpc-virtualenv-activated
      (cond
+      ;; Prefer uv if available
+      ((executable-find "uv")
+       (with-current-buffer (get-buffer-create elpy-venv-buffname)
+         (insert (concat "Running 'uv venv " rpc-venv-path
+                         " --python " elpy-rpc-python-command "':\n\n"))
+         (setq success (call-process "uv" nil t t
+                                     "venv" rpc-venv-path
+                                     "--python" elpy-rpc-python-command))))
+      ;; Fall back to python -m venv
       ((and (= 0 (call-process elpy-rpc-python-command nil nil nil
                               "-m" "venv" "-h"))
            ;; see https://github.com/jorgenschaefer/elpy/issues/1756
@@ -395,6 +404,7 @@ binaries used to create the virtualenv."
                          rpc-venv-path "':\n\n"))
          (setq success (call-process elpy-rpc-python-command nil t t
                                      "-m" "venv" rpc-venv-path))))
+      ;; Fall back to virtualenv
       ((executable-find "virtualenv")
        (with-current-buffer (get-buffer-create elpy-venv-buffname)
          (insert (concat "Running 'virtualenv -p "
@@ -403,7 +413,7 @@ binaries used to create the virtualenv."
          (setq success (call-process "virtualenv" nil t t "-p"
                                      elpy-rpc-python-command rpc-venv-path))))
       (t
-       (error "Elpy needs the 'virtualenv' or 'venv' python packages to create its virtualenv. Please install one of them or disable the dedicated virtualenv with `(setq elpy-rpc-virtualenv-path 'current)`"))))
+       (error "Elpy needs 'uv', 'venv', or 'virtualenv' to create its virtualenv. Please install one of them or disable the dedicated virtualenv with `(setq elpy-rpc-virtualenv-path 'current)`"))))
     ;; warn us if something wrong happened
     (unless (= 0 success)
       (with-current-buffer elpy-venv-buffname
@@ -426,13 +436,16 @@ binaries used to create the virtualenv."
   (if (y-or-n-p "Automatically install the RPC dependencies from PyPI (needed for completion, autoformatting and documentation) ? ")
       (with-temp-buffer
         (message "Elpy is installing the RPC dependencies...")
-        (when (/= (apply 'call-process elpy-rpc-python-command
+        (let* ((packages (elpy-rpc--get-package-list))
+               (exit-code
+                (if (executable-find "uv")
+                    (apply 'call-process "uv" nil t nil
+                           "pip" "install" "--upgrade" packages)
+                  (apply 'call-process elpy-rpc-python-command
                          nil t nil
-                         "-m" "pip" "install" "--upgrade"
-                         (elpy-rpc--get-package-list))
-                  0)
-          (message "Elpy failed to install some of the RPC dependencies, please use `elpy-config' to install them.\n%s" (buffer-string))
-          ))
+                         "-m" "pip" "install" "--upgrade" packages))))
+          (when (/= exit-code 0)
+            (message "Elpy failed to install some of the RPC dependencies, please use `elpy-config' to install them.\n%s" (buffer-string)))))
     (message "Some of Elpy's functionnalities will not work, please use `elpy-config' to install the needed python dependencies.")))
 
 (defun elpy-rpc-reinstall-virtualenv ()
@@ -452,20 +465,23 @@ binaries used to create the virtualenv."
       (elpy-rpc-get-or-create-virtualenv))))
 
 (defun elpy-rpc--pip-missing ()
-  "Return t if pip is not installed in the RPC virtualenv."
-  (let* ((rpc-venv-path (file-name-as-directory
-                         (elpy-rpc-get-virtualenv-path)))
-         (base-pip-scripts (concat rpc-venv-path
-                                   (file-name-as-directory "Scripts")
-                                   "pip"))
-         (base-pip-bin (concat rpc-venv-path
-                               (file-name-as-directory "bin")
-                               "pip")))
-    (not (or
-          (file-exists-p base-pip-scripts)
-          (file-exists-p base-pip-bin)
-          (file-exists-p (concat base-pip-scripts ".exe"))
-          (file-exists-p (concat base-pip-bin ".exe"))))))
+  "Return t if pip is not installed in the RPC virtualenv.
+When uv is available, pip is not required."
+  (if (executable-find "uv")
+      nil
+    (let* ((rpc-venv-path (file-name-as-directory
+                           (elpy-rpc-get-virtualenv-path)))
+           (base-pip-scripts (concat rpc-venv-path
+                                     (file-name-as-directory "Scripts")
+                                     "pip"))
+           (base-pip-bin (concat rpc-venv-path
+                                 (file-name-as-directory "bin")
+                                 "pip")))
+      (not (or
+            (file-exists-p base-pip-scripts)
+            (file-exists-p base-pip-bin)
+            (file-exists-p (concat base-pip-scripts ".exe"))
+            (file-exists-p (concat base-pip-bin ".exe")))))))
 
 ;;;;;;;;;;;;;;;;;;;
 ;;; Promise objects

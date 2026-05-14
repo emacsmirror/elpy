@@ -3,28 +3,18 @@
 set -e
 cd "$(dirname "$0")/.."
 
-if [ -z "$VIRTUAL_ENV" ]
-then
-    echo "Please run this script in a Python virtualenv" >&2
-    exit 1
+# Create dev venv if it doesn't exist
+if [ ! -d ".venv" ]; then
+    uv venv
 fi
 
-pip install --upgrade pip setuptools
+uv pip install -r requirements.txt --upgrade
+uv pip install -r requirements-rpc.txt --upgrade
+uv pip install -r requirements-dev.txt --upgrade
+uv pip install -r requirements-rpc3.6.txt --upgrade
 
-pip install -r requirements.txt --upgrade
-pip install -r requirements-rpc.txt --upgrade
-pip install -r requirements-dev.txt --upgrade
-# For python2
-if python -c 'import sys ; exit(not sys.version_info < (3, 0))'
-then
-    pip install -r requirements-dev2.txt --upgrade
-fi
-# For python >= 3.6
-if python -c 'import sys ; exit(not sys.version_info >= (3, 6))'
-then
-    pip install -r requirements-rpc3.6.txt --upgrade
-fi
-virtualenv ~/.virtualenvs/elpy-test-venv
+# Create test venv (some elisp tests expect this to exist)
+uv venv ~/.virtualenvs/elpy-test-venv
 
 cask
 cask update

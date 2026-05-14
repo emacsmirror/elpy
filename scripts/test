@@ -3,6 +3,11 @@
 set -e
 cd "$(dirname "$0")/.."
 
+# Activate the project venv if not already in one
+if [ -z "$VIRTUAL_ENV" ] && [ -d ".venv" ]; then
+    source .venv/bin/activate
+fi
+
 if [ -z "$1" -o "$1" = "elisp" ]
 then
     cask exec ert-runner --quiet
