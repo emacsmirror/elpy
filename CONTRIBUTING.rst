@@ -8,14 +8,14 @@ We'd be happy for you to contribute to Elpy.
 Setup
 =====
 
-You can set up a working environment for Elpy using ``pip`` and
+You can set up a working environment for Elpy using ``uv`` and
 ``cask``. After installing Cask_, just run the ``setup`` script:
 
 .. code-block::
 
-   virtualenv ~/.virtualenvs/elpy
-   source ~/.virtualenvs/elpy/bin/activate
    ./scripts/setup
+
+This creates a ``.venv`` in the project root and installs all dependencies.
 
 .. _Cask: https://cask.readthedocs.io/en/latest/#user-guide
 

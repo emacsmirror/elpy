@@ -10,7 +10,15 @@
   (add-to-list 'process-environment (format "PYTHONPATH=%s:%s"
 					    elpy-dir
 					    (getenv "PYTHONPATH")))
-  (add-to-list 'process-environment "ELPY_TEST=1"))
+  (add-to-list 'process-environment "ELPY_TEST=1")
+  ;; Use the project .venv python if available, avoids RPC venv creation
+  (let ((venv-python (concat elpy-dir "/.venv/bin/python")))
+    (when (file-exists-p venv-python)
+      (setq elpy-rpc-python-command venv-python))))
+;; Use the current Python environment for tests (avoids RPC venv creation)
+(setq elpy-rpc-virtualenv-path 'current)
+;; Increase timeout for load-time RPC calls (e.g. elpy-refactor-test.el)
+(setq elpy-rpc-timeout 10)
 (require 'elpy)
 ;; Avoid asking stuff during tests
 (defun yes-or-no-p (&rest args) t)
