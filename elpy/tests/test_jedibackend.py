@@ -95,16 +95,17 @@ class TestRPCGetOnelineDocstring(RPCGetOnelineDocstringTests,
             ' ``bytearray`` instance containing a JSON'
             ' document) to a Python object.'
         )
-        if sys.version_info >= (3, 12):
-            self.JSON_DOCSTRING = (
-                "JSON (JavaScript Object Notation) <https://json.org>"
-                " is a subset of JavaScript syntax (ECMA-262"
-                " 3rd edition) used as a lightweight data interchange format.")
-        else:
-            self.JSON_DOCSTRING = (
-                "JSON (JavaScript Object Notation) <http://json.org>"
-                " is a subset of JavaScript syntax (ECMA-262"
-                " 3rd edition) used as a lightweight data interchange format.")
+        # The json module docstring URL changed from http to https in
+        # CPython 3.12, but jedi uses bundled typeshed stubs which may
+        # have either version regardless of runtime.  We don't set
+        # JSON_DOCSTRING here; instead we override check_module_docstring.
+
+    def check_module_docstring(self, docstring):
+        # Accept either http or https since jedi's typeshed stubs may differ
+        self.assertIn("JSON (JavaScript Object Notation) <http", docstring['doc'])
+        self.assertIn("is a subset of JavaScript syntax (ECMA-262"
+                      " 3rd edition) used as a lightweight data interchange format.",
+                      docstring['doc'])
 
     @mock.patch("elpy.jedibackend.run_with_debug")
     def test_should_not_return_empty_docstring(self, run_with_debug):
@@ -171,23 +172,25 @@ class TestRPCGetCalltip(RPCGetCalltipTests,
                    'params': [u'a', u'b'],
                    'name': u'add'}
     if jedibackend.JEDISUP19:
-        THREAD_CALLTIP = {'name': 'Thread',
-                          'index': 0,
-                          'params': ['group: None=None',
-                                     'target: Callable[..., object] | None=None',
-                                     'name: str | None=None',
-                                     'args: Iterable[Any]=()',
-                                     'kwargs: Mapping[str, Any] | None=None',
-                                     'daemon: bool | None=None']}
+        # Thread's calltip params vary by Python version (e.g., 3.14 added
+        # `context`) and by the typeshed stubs bundled with jedi.  We only
+        # assert on the stable subset of params that have been present since
+        # Python 3.0 to avoid brittleness.
+        THREAD_CALLTIP_REQUIRED_PARAMS = [
+            'group: None=None',
+            'target: Callable[..., object] | None=None',
+            'name: str | None=None',
+            'args: Iterable[Any]=()',
+            'kwargs: Mapping[str, Any] | None=None',
+            'daemon: bool | None=None']
     else:
-        THREAD_CALLTIP = {'name': 'Thread',
-                          'index': 0,
-                          'params': ['group: None=...',
-                                     'target: Optional[Callable[..., Any]]=...',
-                                     'name: Optional[str]=...',
-                                     'args: Iterable[Any]=...',
-                                     'kwargs: Mapping[str, Any]=...',
-                                     'daemon: Optional[bool]=...']}
+        THREAD_CALLTIP_REQUIRED_PARAMS = [
+            'group: None=...',
+            'target: Optional[Callable[..., Any]]=...',
+            'name: Optional[str]=...',
+            'args: Iterable[Any]=...',
+            'kwargs: Mapping[str, Any]=...',
+            'daemon: Optional[bool]=...']
 
     def test_should_not_fail_with_get_subscope_by_name(self):
         # Bug #677 / jedi#628
