@@ -95,16 +95,17 @@ class TestRPCGetOnelineDocstring(RPCGetOnelineDocstringTests,
             ' ``bytearray`` instance containing a JSON'
             ' document) to a Python object.'
         )
-        if sys.version_info >= (3, 12):
-            self.JSON_DOCSTRING = (
-                "JSON (JavaScript Object Notation) <https://json.org>"
-                " is a subset of JavaScript syntax (ECMA-262"
-                " 3rd edition) used as a lightweight data interchange format.")
-        else:
-            self.JSON_DOCSTRING = (
-                "JSON (JavaScript Object Notation) <http://json.org>"
-                " is a subset of JavaScript syntax (ECMA-262"
-                " 3rd edition) used as a lightweight data interchange format.")
+        # The json module docstring URL changed from http to https in
+        # CPython 3.12, but jedi uses bundled typeshed stubs which may
+        # have either version regardless of runtime.  We don't set
+        # JSON_DOCSTRING here; instead we override check_module_docstring.
+
+    def check_module_docstring(self, docstring):
+        # Accept either http or https since jedi's typeshed stubs may differ
+        self.assertIn("JSON (JavaScript Object Notation) <http", docstring['doc'])
+        self.assertIn("is a subset of JavaScript syntax (ECMA-262"
+                      " 3rd edition) used as a lightweight data interchange format.",
+                      docstring['doc'])
 
     @mock.patch("elpy.jedibackend.run_with_debug")
     def test_should_not_return_empty_docstring(self, run_with_debug):
