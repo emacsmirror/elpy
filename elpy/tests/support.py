@@ -618,20 +618,31 @@ class RPCGetAssignmentTests():
 class RPCGetCalltipTests(GenericRPCTests):
     METHOD = "rpc_get_calltip"
 
+    def _assert_thread_calltip(self, actual):
+        """Assert that a Thread calltip has the expected structure.
+
+        We check name and index exactly, and verify that all known-stable
+        params are present.  Extra params (added in newer Python versions)
+        are allowed.
+        """
+        self.assertEqual(actual['name'], 'Thread')
+        self.assertEqual(actual['index'], 0)
+        for param in self.THREAD_CALLTIP_REQUIRED_PARAMS:
+            self.assertIn(param, actual['params'])
+
     def test_should_get_calltip(self):
-        expected = self.THREAD_CALLTIP
         source, offset = source_and_offset(
             "import threading\nthreading.Thread(_|_")
         filename = self.project_file("test.py", source)
         calltip = self.backend.rpc_get_calltip(filename,
                                                source,
                                                offset)
-        self.assertEqual(calltip, expected)
+        self._assert_thread_calltip(calltip)
         calltip = self.backend.rpc_get_calltip_or_oneline_docstring(filename,
                                                                     source,
                                                                     offset)
         calltip.pop('kind')
-        self.assertEqual(calltip, expected)
+        self._assert_thread_calltip(calltip)
 
     def test_should_get_calltip_even_after_parens(self):
         source, offset = source_and_offset(
@@ -640,12 +651,12 @@ class RPCGetCalltipTests(GenericRPCTests):
         actual = self.backend.rpc_get_calltip(filename,
                                               source,
                                               offset)
-        self.assertEqual(self.THREAD_CALLTIP, actual)
+        self._assert_thread_calltip(actual)
         actual = self.backend.rpc_get_calltip_or_oneline_docstring(filename,
                                                                    source,
                                                                    offset)
         actual.pop('kind')
-        self.assertEqual(self.THREAD_CALLTIP, actual)
+        self._assert_thread_calltip(actual)
 
     def test_should_get_calltip_at_closing_paren(self):
         source, offset = source_and_offset(
@@ -654,7 +665,7 @@ class RPCGetCalltipTests(GenericRPCTests):
         actual = self.backend.rpc_get_calltip(filename,
                                               source,
                                               offset)
-        self.assertEqual(self.THREAD_CALLTIP, actual)
+        self._assert_thread_calltip(actual)
         actual = self.backend.rpc_get_calltip_or_oneline_docstring(filename,
                                                                    source,
                                                                    offset)

@@ -171,23 +171,25 @@ class TestRPCGetCalltip(RPCGetCalltipTests,
                    'params': [u'a', u'b'],
                    'name': u'add'}
     if jedibackend.JEDISUP19:
-        THREAD_CALLTIP = {'name': 'Thread',
-                          'index': 0,
-                          'params': ['group: None=None',
-                                     'target: Callable[..., object] | None=None',
-                                     'name: str | None=None',
-                                     'args: Iterable[Any]=()',
-                                     'kwargs: Mapping[str, Any] | None=None',
-                                     'daemon: bool | None=None']}
+        # Thread's calltip params vary by Python version (e.g., 3.14 added
+        # `context`) and by the typeshed stubs bundled with jedi.  We only
+        # assert on the stable subset of params that have been present since
+        # Python 3.0 to avoid brittleness.
+        THREAD_CALLTIP_REQUIRED_PARAMS = [
+            'group: None=None',
+            'target: Callable[..., object] | None=None',
+            'name: str | None=None',
+            'args: Iterable[Any]=()',
+            'kwargs: Mapping[str, Any] | None=None',
+            'daemon: bool | None=None']
     else:
-        THREAD_CALLTIP = {'name': 'Thread',
-                          'index': 0,
-                          'params': ['group: None=...',
-                                     'target: Optional[Callable[..., Any]]=...',
-                                     'name: Optional[str]=...',
-                                     'args: Iterable[Any]=...',
-                                     'kwargs: Mapping[str, Any]=...',
-                                     'daemon: Optional[bool]=...']}
+        THREAD_CALLTIP_REQUIRED_PARAMS = [
+            'group: None=...',
+            'target: Optional[Callable[..., Any]]=...',
+            'name: Optional[str]=...',
+            'args: Iterable[Any]=...',
+            'kwargs: Mapping[str, Any]=...',
+            'daemon: Optional[bool]=...']
 
     def test_should_not_fail_with_get_subscope_by_name(self):
         # Bug #677 / jedi#628
