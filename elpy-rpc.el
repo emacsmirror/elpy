@@ -134,7 +134,7 @@ lengthy description of the problem for a bug report. This hangs
 Emacs for a moment, and can be rather annoying if it happens
 repeatedly while editing a source file.
 
-If this variabl is non-nil, Elpy will not display the error
+If this variable is non-nil, Elpy will not display the error
 message again within this amount of seconds."
   :type 'integer
   :group 'elpy)
@@ -204,7 +204,7 @@ needed packages from `elpy-rpc--get-package-list'."
   (expand-file-name (locate-user-emacs-file "elpy/rpc-venv")))
 
 (defun elpy-rpc-get-virtualenv-path ()
-  "Return the RPC virutalenv path to use."
+  "Return the RPC virtualenv path to use."
   (cond
    ((eq elpy-rpc-virtualenv-path 'default)
     (elpy-rpc-default-virtualenv-path))
@@ -445,7 +445,7 @@ binaries used to create the virtualenv."
                          "-m" "pip" "install" "--upgrade" packages))))
           (when (/= exit-code 0)
             (message "Elpy failed to install some of the RPC dependencies, please use `elpy-config' to install them.\n%s" (buffer-string)))))
-    (message "Some of Elpy's functionnalities will not work, please use `elpy-config' to install the needed python dependencies.")))
+    (message "Some of Elpy's functionalities will not work, please use `elpy-config' to install the needed python dependencies.")))
 
 (defun elpy-rpc-reinstall-virtualenv ()
   "Re-install the RPC virtualenv."

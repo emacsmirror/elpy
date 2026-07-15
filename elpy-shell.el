@@ -107,7 +107,7 @@ Can be `project-root' (default) to use the current project root,
 string indicating a specific path.
 
 \\<elpy-mode-map>
-Running python interpeters need to be restarted (with
+Running python interpreters need to be restarted (with
 \\[elpy-shell-kill] followed by \\[elpy-shell-switch-to-shell]) for
 this option to be taken into account."
   :type '(choice (const :tag "Project root" project-root)
@@ -602,7 +602,7 @@ complete). Otherwise, does nothing."
   "Append the given STRING to the output of the Python shell buffer.
 
 Unless NO-FONT-LOCK is set, formats STRING as shell input.
-Prepends a continuation promt if PREPEND-CONT-PROMPT is set."
+Prepends a continuation prompt if PREPEND-CONT-PROMPT is set."
   (unless (string-empty-p string)
   (let* ((process (elpy-shell-get-or-create-process))
          (process-buf (process-buffer process))

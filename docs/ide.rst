@@ -808,8 +808,8 @@ Jedi refactoring
 .. command:: elpy-refactor-rename
    :kbd: C-c C-r r
 
-   Rename all occurences of the symbol at point (variable, function, class, ...).
-   If needed, rename occurences in other files as well.
+   Rename all occurrences of the symbol at point (variable, function, class, ...).
+   If needed, rename occurrences in other files as well.
 
 .. command:: elpy-refactor-extract-variable
    :kbd: C-c C-r v

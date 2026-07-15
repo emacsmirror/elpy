@@ -197,7 +197,7 @@ do not display the diff before applying."
   (unless (and new-name
                (elpy-refactor--is-valid-symbol-p new-name))
     (error "'%s' is not a valid python symbol"))
-  (message "Gathering occurences of '%s'..."
+  (message "Gathering occurrences of '%s'..."
            (thing-at-point 'symbol))
   (let* ((elpy-rpc-timeout 10)  ;; refactoring can be long...
          (diff (elpy-rpc-get-rename-diff new-name))
@@ -207,7 +207,7 @@ do not display the diff before applying."
     (cond ((not success)
            (error "Refactoring failed for some reason"))
           ((string= success "Not available")
-           (error "This functionnality needs jedi > 0.17.0, please update"))
+           (error "This functionality needs jedi > 0.17.0, please update"))
           ((or dontask current-prefix-arg)
            (message "Replacing '%s' with '%s'..."
                     (thing-at-point 'symbol)
@@ -249,7 +249,7 @@ do not display the diff before applying."
         (cond ((not success)
                (error "We could not extract the selection as a variable"))
               ((string= success "Not available")
-               (error "This functionnality needs jedi > 0.17.0, please update"))
+               (error "This functionality needs jedi > 0.17.0, please update"))
               (t
                (deactivate-mark)
                (elpy-refactor--apply-diff proj-path diff)))))))
@@ -281,7 +281,7 @@ do not display the diff before applying."
       (cond ((not success)
              (error "We could not extract the selection as a function"))
             ((string= success "Not available")
-             (error "This functionnality needs jedi > 0.17.0, please update"))
+             (error "This functionality needs jedi > 0.17.0, please update"))
             (t
              (deactivate-mark)
              (elpy-refactor--apply-diff proj-path diff))))))
@@ -297,7 +297,7 @@ do not display the diff before applying."
            (error "We could not inline the variable '%s'"
                   (thing-at-point 'symbol)))
           ((string= success "Not available")
-           (error "This functionnality needs jedi > 0.17.0, please update"))
+           (error "This functionality needs jedi > 0.17.0, please update"))
           (t
            (elpy-refactor--apply-diff proj-path diff)))))
 

@@ -715,7 +715,7 @@ json.dump(config, sys.stdout)
 (defun elpy-config-error (&optional fmt &rest args)
   "Note a configuration problem.
 
-FMT is the formating string.
+FMT is the formatting string.
 
 This will show a message in the minibuffer that tells the user to
 use \\[elpy-config]."
@@ -2396,7 +2396,7 @@ This updates all other overlays."
               (delete-region (point) (overlay-end other-ov)))))))))
 
 (defun elpy-multiedit ()
-  "Edit all occurences of the symbol at point, or the active region.
+  "Edit all occurrences of the symbol at point, or the active region.
 
 If multiedit is active, stop it."
   (interactive)
@@ -3568,7 +3568,7 @@ docstring body."
 
 ;; DWIM functions
 (defun elpy-folding--hide-region (beg end)
-  "Hide the region betwwen BEG and END."
+  "Hide the region between BEG and END."
   (hs-life-goes-on
    (save-excursion
      (let ((beg-eol (progn (goto-char beg) (line-end-position)))
